@@ -7,6 +7,9 @@ from flask_login import current_user
 def load_theloai():
     return TheLoai.query.all()
 
+def sach_nv():
+    return Sach.query.all()
+
 def load_sach(kw=None, theloai_id=None, page=None):
     sach = Sach.query
     theloai = TheLoai.query
@@ -135,4 +138,6 @@ def add_order_online(cart_info):
             db.session.add(cthd)
 
         db.session.commit()
+
+
 

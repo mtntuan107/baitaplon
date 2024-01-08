@@ -7,17 +7,19 @@
     <div class="col-md-5 col-xs-12">
         <table class="table">
             <tr>
-                <th>Book's Name</th>
-                <th>Amount of bought</th>
+                <th>Type book</th>
+                <th>Month</th>
+                <th>Revenue</th>
             </tr>
-            {% for b, dt in stats %}
+            {% for tl, m, r in stats %}
             <tr>
-                <td>{{ b.name }}</td>
+                <td>{{ tl.name }}</td>
+                <td>{{ m }}</td>
                 <td>
-                    {% if dt %}
-                    {{dt}}
+                    {% if r %}
+                    {{r}} VND
                     {% else %}
-                    0
+                    0 VND
                     {% endif %}
                 </td>
 
@@ -25,35 +27,30 @@
             {% endfor %}
         </table>
     </div>
+
     <div class="col-md-5 col-xs-12">
         <form>
             <div class="form-group">
-                <input type="text" class="form-control" name="kw" placeholder="Typing keyword">
-
-            </div>
-            <div class="form-group">
-                <input type="date" name="from_date" class="form-control">
-            </div>
-            <div class="form-group">
-                <input type="date" name="to_date" class="form-control">
+                <input type="text" class="form-control" name="type" placeholder="Typing type of book">
             </div>
             <input type="submit" class="btn btn-info mt-3" value="Stats">
         </form>
-        <canvas id="BookChart"></canvas>
+        <canvas id="MonthChart"></canvas>
+
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let labels=[]
+    let labels=[][]
     let info=[]
     let r,g,b
     let colors=[]
     let borderColors=[]
 
-    {% for b, dt in stats %}
-    {% if dt %}
-        labels.push('{{ b.name }}')
-        info.push({{dt}})
+    {% for tl, m, r in stats %}
+    {% if r %}
+        labels.push('{{ m }}')
+        info.push({{r}})
 
         r = Math.random()*255
         g = Math.random()*255
@@ -64,8 +61,8 @@
     {% endif %}
     {% endfor %}
     window.onload = function() {
-        const ctx = document.getElementById('BookChart').getContext('2d');
-        loadChart(ctx, labels, info, 'bar', colors, borderColors, 'Revenue of Book')
+        const ctx = document.getElementById('MonthChart').getContext('2d');
+        loadChart(ctx, labels, info, 'bar', colors, borderColors, 'Month Revenue')
     }
 
 

@@ -1,0 +1,83 @@
+{% extends 'qlk/base.html' %}
+
+{% block title %}QLK Add{% endblock %}
+
+{% block content %}
+<form method="post" action ="{{url_for('register')}}" enctype="multipart/form-data">
+    <div class="form-group mt-5">
+        <select id="bookSelect" class="form-select" aria-label="Default select example">
+        <option selected>Open this select menu</option>
+            <script>
+                function taoOpt(selectElement, value, text, quantity) {
+                    var option = document.createElement("option");
+                    option.value = value;
+                    option.text = text;
+                    option.data_quatity=quantity;
+                    selectElement.add(option);
+                }
+                var slct = document.getElementById("bookSelect");
+                {% for book in b %}
+                taoOpt(slct, {{book.id}}, "{{book.name}}", {{book.quanti}});
+                {% endfor %}
+            </script>
+    </select>
+
+    </div>
+    <div class="form-group">
+        <h1 class="" id="quantity"></h1>
+        <script>
+            var bookSelect = document.getElementById("bookSelect");
+            bookSelect.addEventListener("change", function() {
+                var selectedOption = bookSelect.options[bookSelect.selectedIndex];
+                var id = selectedOption.getAttribute("value");
+                var view = document.getElementById("quantity");
+                {% for book in b%}
+                if (id == {{book.id}}){
+                    view.textContent = "Số lượng: {{ book.quanti }}";
+                }
+                {% endfor %}
+            });
+
+<!--            var bookSelect = document.getElementById("bookSelect");-->
+
+<!--            -->
+
+<!--            bookSelect.addEventListener("change", function() {-->
+<!--                var selectedOption = bookSelect.options[bookSelect.selectedIndex];-->
+<!--                var quantity = selectedOption.getAttribute("data_quantity");-->
+<!--                // Kiểm tra nếu có số lượng, sau đó hiển thị số lượng-->
+<!--                view.textContent = "Số lượng: " + parseInt(quantity);-->
+<!--            });-->
+        </script>
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" class="form-control" id="email" name="email">
+    </div>
+    <div class="form-group">
+        <label for="phonenum">Phone Number</label>
+        <input type="number" class="form-control" id="phonenum" name="phonenum">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+    </div>
+    <div class="form-group">
+        <label for="confirm">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm" name="confirm">
+    </div>
+    <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" id="location" name="location">
+    </div>
+    <div class="form-group">
+        <label for="avatar">Avatar</label>
+        <input type="file" class="form-control" id="avatar" name="avatar">
+    </div>
+
+        <input class="btn btn-danger mt-3" type="submit" value="Register">
+
+</form>
+
+
+{% endblock %}

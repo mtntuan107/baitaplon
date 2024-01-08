@@ -103,6 +103,10 @@ class KhachHang(db.Model):
     def __str__(self):
         return self.name
 
+class QuiDinh(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False, unique=True)
+    value = Column(Integer, nullable=False)
 
 class NhanVien(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -117,11 +121,11 @@ class NhanVien(db.Model):
 
 
 class HoaDon(db.Model):
-    id = Column(Integer, primary_key=True, nullable=False,autoincrement=True)
-    kh_id = Column(Integer,ForeignKey(KhachHang.id),nullable=False)
-    ngay = Column(DateTime,default=datetime.now())
+    id = Column(Integer, primary_key=True, nullable=False,  autoincrement=True)
+    kh_id = Column(Integer, ForeignKey(KhachHang.id),nullable=False)
+    ngay = Column(DateTime, default=datetime.now())
     thanhtoan = Column(Boolean, default=1)
-    cthd = relationship('ChiTietHD',backref='HoaDon',lazy=True)
+    cthd = relationship('ChiTietHD', backref='HoaDon', lazy=True)
 
 
 
@@ -129,15 +133,15 @@ class ChiTietHD(db.Model):
     id = Column(Integer, primary_key=True, nullable=False,autoincrement=True)
     quantity = Column(Integer,default=0)
     price = Column(Float,default=0)
-    sach_id = Column(Integer,ForeignKey(Sach.id),nullable=False)
-    hd_id = Column (Integer,ForeignKey(HoaDon.id),nullable=False)
+    sach_id = Column(Integer, ForeignKey(Sach.id), nullable=False)
+    hd_id = Column (Integer, ForeignKey(HoaDon.id), nullable=False)
 
 
 
 if __name__ == "__main__":
     from app import app
     with app.app_context():
-        # db.create_all()
+        db.create_all()
 
         t1 = TheLoai(name='Technology')
         t2 = TheLoai(name='English')
@@ -240,6 +244,11 @@ if __name__ == "__main__":
         db.session.add_all([stg7, stg8, stg9, stg10, stg11, stg12])
         db.session.commit()
 
+        qd1 = QuiDinh(name='qd1', value =123)
+        qd2 = QuiDinh(name='qd2', value=123)
+        db.session.add(qd1)
+        db.session.add(qd2)
+        db.session.commit()
 
 
 

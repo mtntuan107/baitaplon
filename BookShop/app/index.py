@@ -12,18 +12,42 @@ from datetime import datetime,timedelta
 @app.route('/')
 def index():
     kw = request.args.get('kw')
+
     theloai_id = request.args.get('theloai_id')
+
     page = request.args.get("page")
 
-
     theloai = dao.load_theloai()
+
     sach = dao.load_sach(kw=kw, theloai_id = theloai_id, page=page)
 
     total = dao.count_sach()
 
-    return render_template('index.html',theloai=theloai,
+    return render_template('index.html', theloai=theloai,
                            sach=sach,
                            pages=math.ceil(total / app.config['PAGE_SIZE']))
+
+
+@app.route('/nv')
+def nv():
+    return render_template('nv/index.html')
+
+@app.route('/qlk')
+def qlk():
+    return render_template('qlk/index.html')
+
+
+@app.route('/qlk/create')
+def qlk_cr():
+    return render_template('qlk/create.html', b=utils.data_book())
+
+@app.route('/nv/create', methods=['get', 'post'])
+def nvCr():
+    id = 1
+    if request.method.__eq__('POST'):
+        id = int(request.form.get('mavach'))
+    return render_template('nv/create.html', s=utils.add_book_nv(int(id))\
+                           , stats=utils.count_cart(session.get('viewtt')))
 
 
 @app.route('/sach/<id>')
@@ -34,6 +58,7 @@ def details(id):
     nxb_profile = dao.load_nxbrpofile(id)
     return render_template('details.html', sach_profile=sach_profile,theloai_profile=theloai_profile,
                            tacgia_profile=tacgia_profile,nxb_profile=nxb_profile)
+
 
 @app.route('/api/cart', methods=['post'])
 def add_cart():
@@ -76,6 +101,32 @@ def add_cart():
 
     return jsonify(utils.count_cart(cart))
 
+
+@app.route('/api/nvcart', methods=['post'])
+def add_view_nv():
+    data = request.json
+    id = str(data.get('id'))
+    name = data.get('name')
+    price = data.get('price')
+
+
+    viewtt = session.get('viewtt')
+    if not viewtt :
+        viewtt = {}
+
+    if id in viewtt:
+        viewtt[id]['quantity'] = viewtt[id]['quantity'] + 1
+    else:
+        viewtt[id] = {
+            'id': id,
+            'name': name,
+            'price': price,
+            'quantity': 1
+        }
+
+    session['viewtt'] = viewtt
+
+    return jsonify(utils.count_cart(viewtt))
 
 @app.route("/api/cart/<sach_id>", methods=['put'])
 def update_cart(sach_id):
@@ -130,8 +181,6 @@ def cart():
 @app.route('/info')
 def info():
     info_user = dao.load_info(user_id=current_user.id)
-
-
     return render_template('info.html', info_user=info_user)
 
 
@@ -226,6 +275,29 @@ def signin_quanly():
         if tk:
             login_user(user=tk)
             return redirect('/admin')
+
+
+@app.route('/nv/signin',methods=['get','post'])
+def signin_nv():
+    err_msg = ''
+    if request.method.__eq__('POST'):
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        tk = utils.check_login(username=username, password=password)
+        if tk:
+            login_user(user=tk)
+            return redirect('/nv')
+        else:
+            err_msg = 'Username or password is wrong'
+    return render_template('nv/login.html', err_msg=err_msg)
+
+@app.route('/logoutTkNV')
+def logoutTkNV():
+    logout_user()
+    return redirect(url_for('signin_nv'))
+
+
 @login.user_loader
 def tk_load(tk_id):
     return utils.get_tk_by_id(tk_id=tk_id)
@@ -234,6 +306,20 @@ def tk_load(tk_id):
 def logoutTk():
     logout_user()
     return redirect(url_for('signin'))
+
+
+@app.route("/api/pay_nv", methods=['post'])
+def pay_nv():
+        try:
+            utils.cre_hd(session.get('viewtt'))
+        except:
+            return jsonify({'code':500,'err_msg': 'Có lỗi xảy ra trong quá trình thanh toán!!!'})
+        else:
+            del session['viewtt']
+            return jsonify({'code': 200})
+
+
+
 
 if __name__ == '__main__':
     from app.admin import *

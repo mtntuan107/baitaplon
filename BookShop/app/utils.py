@@ -1,10 +1,11 @@
 from app import db, app
 import json, os
-from app.models import TaiKhoan, KhachHang, ForeignKey, Sach,TheLoai, Sach_TheLoai, VaiTro
+from app.models import TaiKhoan, KhachHang, ForeignKey, Sach,TheLoai, Sach_TheLoai, VaiTro, ChiTietHD, HoaDon
 import hashlib
 from flask import session
 from flask_login import current_user, UserMixin
 from sqlalchemy import func
+from sqlalchemy.sql import extract
 def count_cart(cart):
     total_quantity, total_amount = 0, 0
 
@@ -57,3 +58,55 @@ def view_sach():
                     .group_by(TheLoai.id).all()
     return result
 
+
+def book_stats(kw=None, from_date=None, to_date=None):
+    b = db.session.query(Sach, ChiTietHD.quantity)\
+                        .outerjoin(ChiTietHD, ChiTietHD.sach_id == Sach.id)\
+                        .outerjoin(HoaDon, HoaDon.id == ChiTietHD.hd_id)\
+                        .group_by(Sach.id, Sach.name, ChiTietHD.quantity)
+
+    if kw:
+        b = b.filter(Sach.name.contains(kw))
+
+    if from_date:
+        b = b.filter(HoaDon.ngay.__ge__(from_date))
+
+    if to_date:
+        b = b.filter(HoaDon.ngay.__le__(to_date))
+    return b.all()
+
+
+def month_type_stats(year, type=None):
+    kq =  db.session.query(TheLoai, extract('month', HoaDon.ngay),\
+                            func.sum(ChiTietHD.price * ChiTietHD.quantity))\
+                            .outerjoin(Sach_TheLoai, Sach_TheLoai.TL_id == TheLoai.id)\
+                            .outerjoin(Sach, Sach.id == Sach_TheLoai.S_id)\
+                            .outerjoin(ChiTietHD, ChiTietHD.sach_id == Sach.id)\
+                            .outerjoin(HoaDon, ChiTietHD.hd_id == HoaDon.id)\
+                            .filter(extract('year', HoaDon.ngay) == year)\
+                            .group_by(TheLoai, extract('month', HoaDon.ngay))
+
+    if type:
+        kq = kq.filter(TheLoai.name.contains(type))
+
+    return kq
+
+
+def add_book_nv(b_id):
+    return Sach.query.get(b_id)
+
+def cre_hd(viewtt):
+    hd = HoaDon(kh_id=1, thanhtoan=1)
+    db.session.add(hd)
+    db.session.commit()
+
+    for c in viewtt.values():
+        cthd = ChiTietHD(quantity=c['quantity'], price=c['price'], hd_id=hd.id, sach_id=c['id'])
+
+        db.session.add(cthd)
+
+    db.session.commit()
+
+
+def data_book():
+    return Sach.query.all()
