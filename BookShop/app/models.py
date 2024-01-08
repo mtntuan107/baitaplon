@@ -150,7 +150,7 @@ class NhanVien(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False, unique=True)
     tk_id = Column(Integer, ForeignKey(TaiKhoan.id))
-
+    hd = relationship('HoaDon', backref='NhanVien', lazy=True)
     def __str__(self):
         return self.name
 
@@ -303,15 +303,6 @@ if __name__ == "__main__":
         db.session.add_all([stg7, stg8, stg9, stg10, stg11, stg12])
         db.session.commit()
 
-        admin = TaiKhoan(username='admin', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()), role=VaiTro.QL)
-        db.session.add(admin)
-        db.session.commit()
-
-
-        nv = TaiKhoan(username='nv', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()), role=VaiTro.NV)
-        db.session.add(nv)
-        db.session.commit()
-
         q1 = QuiDinh (name = 'QD1', info='Số lượng sách nhập tối thiểu',  value='150')
         q2 = QuiDinh(name='QD2', info='Chỉ nhập sách còn ít hơn', value='300')
         q3 = QuiDinh(name='QD3', info='Thời gian thanh toán sau khi đặt hàng tối đa ', value='2')
@@ -320,10 +311,21 @@ if __name__ == "__main__":
         db.session.add(q3)
         db.session.commit()
 
-        qlk = TaiKhoan(username='qlk', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()),
-                      role=VaiTro.QLK)
-        db.session.add(qlk)
-        db.session.commit()
+        # admin = TaiKhoan(username='admin', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()), role=VaiTro.QL)
+        # db.session.add(admin)
+        # db.session.commit()
+        #
+        #
+        # nv = TaiKhoan(username='nv', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()), role=VaiTro.NV)
+        # db.session.add(nv)
+        # db.session.commit()
+        #
+        #
+        #
+        # qlk = TaiKhoan(username='qlk', password=str(hashlib.md5('123'.strip().encode('utf-8')).hexdigest()),
+        #               role=VaiTro.QLK)
+        # db.session.add(qlk)
+        # db.session.commit()
 
 
 

@@ -139,8 +139,3 @@ def load_hd_nhap():
                                         .outerjoin(Sach, Sach.id == ChiTietHDN.sach_id)\
                                         .outerjoin(NhaXuatBan, NhaXuatBan.id == Sach.nxb_id)\
                                         .group_by(HoaDonNhap.id, ChiTietHDN,Sach, NhaXuatBan).all()
-
-    # db.session.query(TheLoai, func.count(Sach.id).label('sach_count')) \
-    #     .outerjoin(Sach_TheLoai, TheLoai.id == Sach_TheLoai.TL_id) \
-    #     .outerjoin(Sach, Sach_TheLoai.S_id == Sach.id) \
-    #     .group_by(TheLoai.id).all()
