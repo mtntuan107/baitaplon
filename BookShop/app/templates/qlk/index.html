@@ -2,5 +2,28 @@
 
 {% block title %}Trang chủ{% endblock %}
 {% block content %}
+<h1 class="text-center text-danger">HOA DON NHAP</h1>
 
+<div>
+    <table class="table">
+        <tr>
+            <th>Id</th>
+            <th>Ten Sach</th>
+            <th>NXB</th>
+            <th>So Luong</th>
+            <th>Tong gia</th>
+            <th>Date</th>
+        </tr>
+        {% for hd, cthd , s,  nxb, total  in stats %}
+        <tr>
+            <td>{{hd.id}}</td>
+            <td>{{s.name}}</td>
+            <td>{{nxb.name}}</td>
+            <td>{{cthd.quantity}}</td>
+            <td>{{total}} VND</td>
+            <td>{{hd.ngay}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}

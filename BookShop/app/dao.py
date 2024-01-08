@@ -1,5 +1,5 @@
 from app.models import (TheLoai, Sach, TacGia, NhaXuatBan, Sach_TheLoai, Sach_TacGia,
-                        KhachHang,HoaDon,ChiTietHD,TaiKhoan)
+                        KhachHang,HoaDon,ChiTietHD,TaiKhoan,QuiDinh)
 from app import app, db
 import hashlib
 from flask_login import current_user
@@ -111,6 +111,13 @@ def load_sach_info():
 
     return sach_info.all()
 
+
+def load_day():
+    day = QuiDinh.query
+
+    day = day.filter(QuiDinh.name.contains('QD3'))
+
+    return day.all()
 
 def add_order(cart_info):
     if cart_info:

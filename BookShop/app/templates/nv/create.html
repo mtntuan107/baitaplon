@@ -3,7 +3,7 @@
 {% block title %}Add{% endblock %}
 
 {% block content %}
-{% if current_user.is_authenticated %}
+{% if current_user.is_authenticated and current_user.role.__eq__(r) %}
 <div class="row">
 
     <div class="col-md-5 col-xs-12">

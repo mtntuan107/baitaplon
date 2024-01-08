@@ -34,12 +34,16 @@ def nv():
 
 @app.route('/qlk')
 def qlk():
-    return render_template('qlk/index.html')
+    return render_template('qlk/index.html', stats=utils.load_hd_nhap())
 
 
-@app.route('/qlk/create')
+@app.route('/qlk/create', methods=['get', 'post'])
 def qlk_cr():
-    return render_template('qlk/create.html', b=utils.data_book())
+    if request.method.__eq__('POST'):
+        sach_id = request.form.get('bookSelect')
+        quantity = request.form.get('quantity_into')
+        utils.hd_nhap(sach_id=sach_id, quantity=quantity)
+    return render_template('qlk/create.html', b=utils.data_book(), qd=utils.data_qd())
 
 @app.route('/nv/create', methods=['get', 'post'])
 def nvCr():
@@ -47,7 +51,7 @@ def nvCr():
     if request.method.__eq__('POST'):
         id = int(request.form.get('mavach'))
     return render_template('nv/create.html', s=utils.add_book_nv(int(id))\
-                           , stats=utils.count_cart(session.get('viewtt')))
+                           , stats=utils.count_cart(session.get('viewtt')), r = VaiTro.NV)
 
 
 @app.route('/sach/<id>')
@@ -200,7 +204,8 @@ def hd_info(id):
     hd = dao.load_hoadon(user_id=id)
     hd_info = dao.load_hdinfo(id)
     sach_info = dao.load_sach_info()
-    ngay_thanh_toan = (hd_info[0].ngay + timedelta(days=2))
+    day = dao.load_day()
+    ngay_thanh_toan = (hd_info[0].ngay + timedelta(days=day[0].value))
     total_quanti = 0
     total_sum = 0
     for c in cthd:
@@ -208,7 +213,8 @@ def hd_info(id):
         total_sum = total_sum + (c.quantity*c.price)
 
     return render_template('orderdetails.html', cthd=cthd, info_user=info_user,hd=hd,hd_info=hd_info,
-                           total_sum=total_sum,total_quanti=total_quanti,ngay_thanh_toan=ngay_thanh_toan,sach_info=sach_info)
+                           total_sum=total_sum,total_quanti=total_quanti,ngay_thanh_toan=ngay_thanh_toan,sach_info=sach_info,
+                           day=day)
 
 
 @app.context_processor
@@ -241,7 +247,7 @@ def register():
                 utils.add_tk(username=username, password=password, avatar=avatar_path)
                 tk_id = utils.get_id_from_username(username)
                 utils.tk_link_kh(tk_id=tk_id, name=name, location=location, phonenum=phonenum, email=email)
-                return redirect(url_for('index'))
+                return redirect(url_for('signin'))
             else:
                 err_msg = "Password not valid"
         except Exception as ex:
@@ -259,7 +265,8 @@ def signin():
         tk = utils.check_login(username=username, password=password)
         if tk:
             login_user(user=tk)
-            return redirect('/')
+            next = request.args.get('next')
+            return redirect('/' if next is None else next)
         else:
             err_msg = 'Username or password is wrong'
     return render_template('login.html', err_msg=err_msg)
@@ -277,14 +284,14 @@ def signin_quanly():
             return redirect('/admin')
 
 
-@app.route('/nv/signin',methods=['get','post'])
+@app.route('/nv/signin', methods=['get', 'post'])
 def signin_nv():
     err_msg = ''
     if request.method.__eq__('POST'):
         username = request.form.get('username')
         password = request.form.get('password')
 
-        tk = utils.check_login(username=username, password=password)
+        tk = utils.check_login(username=username, password=password, role=VaiTro.NV)
         if tk:
             login_user(user=tk)
             return redirect('/nv')
@@ -292,10 +299,31 @@ def signin_nv():
             err_msg = 'Username or password is wrong'
     return render_template('nv/login.html', err_msg=err_msg)
 
+@app.route('/qlk/signin', methods=['get', 'post'])
+def signin_qlk():
+    err_msg = ''
+    if request.method.__eq__('POST'):
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        tk = utils.check_login(username=username, password=password, role=VaiTro.QLK)
+        if tk:
+            login_user(user=tk)
+            return redirect('/qlk')
+        else:
+            err_msg = 'Username or password is wrong'
+    return render_template('qlk/login.html', err_msg=err_msg)
+
+
 @app.route('/logoutTkNV')
 def logoutTkNV():
     logout_user()
     return redirect(url_for('signin_nv'))
+
+@app.route('/logoutTkQLK')
+def logoutTkQLK():
+    logout_user()
+    return redirect(url_for('signin_qlk'))
 
 
 @login.user_loader

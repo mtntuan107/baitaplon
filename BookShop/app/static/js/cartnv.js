@@ -19,6 +19,7 @@ function addToViewtt(id, name, price){
     }).catch(function(err){
         console.error(err);
     })
+//    location.reload();
 }
 
 function pay_nv() {

@@ -9,7 +9,7 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="{{ url_for('nv')}}">Home</a>
                 </li>
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated and current_user.role.__eq__(r) %}
                 <li class="nav-item">
                     <a class="nav-link text-success" href="{{ url_for('nvCr')}}">Create HD</a>
                 </li>

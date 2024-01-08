@@ -1,6 +1,6 @@
 from app import db, app
 import json, os
-from app.models import TaiKhoan, KhachHang, ForeignKey, Sach,TheLoai, Sach_TheLoai, VaiTro, ChiTietHD, HoaDon
+from app.models import TaiKhoan, KhachHang, ForeignKey, Sach,TheLoai, Sach_TheLoai, VaiTro, ChiTietHD, HoaDon, QuiDinh, HoaDonNhap, ChiTietHDN,NhaXuatBan
 import hashlib
 from flask import session
 from flask_login import current_user, UserMixin
@@ -96,7 +96,7 @@ def add_book_nv(b_id):
     return Sach.query.get(b_id)
 
 def cre_hd(viewtt):
-    hd = HoaDon(kh_id=1, thanhtoan=1)
+    hd = HoaDon(thanhtoan=1)
     db.session.add(hd)
     db.session.commit()
 
@@ -110,3 +110,37 @@ def cre_hd(viewtt):
 
 def data_book():
     return Sach.query.all()
+
+def data_qd():
+    return QuiDinh.query.all()
+
+def hd_nhap(sach_id, quantity):
+    hd = HoaDonNhap(thanhtoan=1)
+    qd_sl_nhap = QuiDinh.query.filter(QuiDinh.name == 'QD1').first()
+    ql_sl_con = QuiDinh.query.filter(QuiDinh.name == 'QD2').first()
+    s = Sach.query.get(sach_id)
+    sl_sach_con = s.quanti
+    if int(quantity) > int(qd_sl_nhap.value) and int(sl_sach_con) < int(ql_sl_con.value):
+        db.session.add(hd)
+        db.session.commit()
+
+        cthd = ChiTietHDN(quantity=quantity, price=s.price, hd_id=hd.id, sach_id=sach_id)
+        db.session.add(cthd)
+        db.session.commit()
+
+        s.quanti = int(s.quanti) + int(quantity)
+        db.session.add(s)
+        db.session.commit()
+
+
+def load_hd_nhap():
+    return db.session.query(HoaDonNhap, ChiTietHDN, Sach, NhaXuatBan, func.sum(ChiTietHDN.price*ChiTietHDN.quantity))\
+                                        .outerjoin(ChiTietHDN, ChiTietHDN.hd_id == HoaDonNhap.id)\
+                                        .outerjoin(Sach, Sach.id == ChiTietHDN.sach_id)\
+                                        .outerjoin(NhaXuatBan, NhaXuatBan.id == Sach.nxb_id)\
+                                        .group_by(HoaDonNhap.id, ChiTietHDN,Sach, NhaXuatBan).all()
+
+    # db.session.query(TheLoai, func.count(Sach.id).label('sach_count')) \
+    #     .outerjoin(Sach_TheLoai, TheLoai.id == Sach_TheLoai.TL_id) \
+    #     .outerjoin(Sach, Sach_TheLoai.S_id == Sach.id) \
+    #     .group_by(TheLoai.id).all()
