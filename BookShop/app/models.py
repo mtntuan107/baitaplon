@@ -8,8 +8,12 @@ from enum import Enum as EnumTK
 import hashlib
 
 
-class TheLoai(db.Model):
+class BaseModel(db.Model):
+    __abstract__ = True
+
     id = Column(Integer, primary_key=True, autoincrement=True)
+
+class TheLoai(BaseModel):
     name = Column(String(50), nullable=False, unique=True)
     sach_theloai = relationship('Sach_TheLoai', backref='TheLoai', lazy=True)
 
@@ -17,24 +21,27 @@ class TheLoai(db.Model):
         return self.name
 
 
-class NhaXuatBan (db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class NhaXuatBan (BaseModel):
+
+    __tablename__ = 'nhaxuatban'
+
+
     name = Column(String(50), nullable=False, unique=True)
-    sach = relationship('Sach', backref='NhaXuatBan', lazy=True)
+    sach = relationship('Sach', backref='nhaxuatban', lazy=False)
 
     def __str__(self):
         return self.name
 
 
-class Sach(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class Sach(BaseModel):
+
     name = Column(String(50), nullable=False, unique=True)
     price = Column(Float, default=0)
     image = Column(String(100))
     miniid = Column(String(50), nullable=False, unique=True)
     sach_info = Column(String(8000), nullable=False)
     quanti=Column(Integer, nullable=False)
-    nxb_id = Column(Integer, ForeignKey(NhaXuatBan.id), nullable=False)
+    nxb_id = Column(Integer, ForeignKey(NhaXuatBan.id), nullable=False, default=1)
     sach_theloai = relationship('Sach_TheLoai', backref='Sach', lazy=True)
     sach_tacgia = relationship('Sach_TacGia', backref='Sach', lazy=True)
     cthd = relationship('ChiTietHD',backref='Sach',lazy=True)
@@ -43,8 +50,7 @@ class Sach(db.Model):
         return self.name
 
 
-class TacGia(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class TacGia(BaseModel):
     name = Column(String(50), nullable=False, unique=True)
     sach_tacgia = relationship('Sach_TacGia', backref='TacGia', lazy=True)
 
@@ -52,8 +58,7 @@ class TacGia(db.Model):
         return self.name
 
 
-class Sach_TheLoai (db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class Sach_TheLoai (BaseModel):
     S_id = Column(Integer, ForeignKey(Sach.id), nullable=False)
     TL_id = Column(Integer, ForeignKey(TheLoai.id), nullable=False)
 
@@ -61,8 +66,7 @@ class Sach_TheLoai (db.Model):
         return self.name
 
 
-class Sach_TacGia (db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class Sach_TacGia (BaseModel):
     S_id = Column(Integer, ForeignKey(Sach.id), nullable=False)
     TG_id = Column(Integer, ForeignKey(TacGia.id), nullable=False)
 
@@ -81,8 +85,7 @@ class VaiTro(EnumTK):
         return self.name
 
 
-class TaiKhoan(db.Model, UserMixin):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class TaiKhoan(BaseModel, UserMixin):
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     avatar= Column(String(100))
@@ -99,8 +102,7 @@ class TaiKhoan(db.Model, UserMixin):
         return self.name
 
 
-class QTV(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class QTV(BaseModel):
     name = Column(String(50), nullable=False)
     tk_id = Column(Integer, ForeignKey(TaiKhoan.id))
 
@@ -108,8 +110,7 @@ class QTV(db.Model):
         return self.name
 
 
-class QLK(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class QLK(BaseModel):
     name= Column(String(50), nullable=False)
     tk_id = Column(Integer, ForeignKey(TaiKhoan.id))
     hdn_id= relationship('HoaDonNhap', backref='QLK', lazy=True)
@@ -117,16 +118,16 @@ class QLK(db.Model):
         return self.name
 
 
-class QL(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class QL(BaseModel):
+
     name= Column(String(50), nullable=False)
     tk_id = Column(Integer, ForeignKey(TaiKhoan.id), nullable=False)
 
     def __str__(self):
         return self.name
 
-class KhachHang(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class KhachHang(BaseModel):
+
     name = Column(String(50), nullable=False)
     email = Column(String(50))
     diachi = Column(String(50), nullable=False)
@@ -137,8 +138,7 @@ class KhachHang(db.Model):
     def __str__(self):
         return self.name
 
-class QuiDinh(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class QuiDinh(BaseModel):
     name = Column(String(50), nullable=False, unique=True)
     value = Column(Integer, nullable=False)
     info = Column(String(8000))
@@ -146,8 +146,7 @@ class QuiDinh(db.Model):
     def __str__(self):
         return self.name
 
-class NhanVien(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+class NhanVien(BaseModel):
     name = Column(String(50), nullable=False, unique=True)
     tk_id = Column(Integer, ForeignKey(TaiKhoan.id))
     hd = relationship('HoaDon', backref='NhanVien', lazy=True)
@@ -155,8 +154,8 @@ class NhanVien(db.Model):
         return self.name
 
 
-class HoaDon(db.Model):
-    id = Column(Integer, primary_key=True, nullable=False,  autoincrement=True)
+class HoaDon(BaseModel):
+
     kh_id = Column(Integer, ForeignKey(KhachHang.id))
     ngay = Column(DateTime, default=datetime.now())
     thanhtoan = Column(Boolean, default=1)
@@ -166,8 +165,8 @@ class HoaDon(db.Model):
         return self.name
 
 
-class ChiTietHD(db.Model):
-    id = Column(Integer, primary_key=True, nullable=False,autoincrement=True)
+class ChiTietHD(BaseModel):
+
     quantity = Column(Integer,default=0)
     price = Column(Float,default=0)
     sach_id = Column(Integer, ForeignKey(Sach.id), nullable=False)
@@ -176,8 +175,7 @@ class ChiTietHD(db.Model):
     def __str__(self):
         return self.name
 
-class HoaDonNhap(db.Model):
-    id = Column(Integer, primary_key=True, nullable=False,  autoincrement=True)
+class HoaDonNhap(BaseModel):
     ngay = Column(DateTime, default=datetime.now())
     thanhtoan = Column(Boolean, default=1)
     cthdn = relationship('ChiTietHDN', backref='HoaDonNhap', lazy=True)
@@ -186,8 +184,7 @@ class HoaDonNhap(db.Model):
         return self.name
 
 
-class ChiTietHDN(db.Model):
-    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+class ChiTietHDN(BaseModel):
     quantity = Column(Integer, default=0)
     price = Column(Float, default=0)
     sach_id = Column(Integer, ForeignKey(Sach.id), nullable=False)

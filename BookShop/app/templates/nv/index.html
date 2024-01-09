@@ -2,5 +2,9 @@
 
 {% block title %}Trang chủ{% endblock %}
 {% block content %}
-
+{% if current_user.is_authenticated %}
+<h1 class="text-center text-danger">Tai khoan nhan vien: {{current_user.username}}</h1>
+{% else %}
+<h1 class="text-center text-danger">Trang Nhan Vien</h1>
+{% endif %}
 {% endblock %}

@@ -2,7 +2,7 @@
 
 {% block body %}
 {% if current_user.is_authenticated %}
-<h1>Welcome {{ current_user.name }} to administrator website </h1>
+<h1>Welcome {{ current_user.username }} to administrator website </h1>
 <table class="table">
     <tr>
         <th>Id</th>

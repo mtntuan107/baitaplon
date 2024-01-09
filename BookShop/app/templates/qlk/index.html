@@ -2,6 +2,7 @@
 
 {% block title %}Trang chủ{% endblock %}
 {% block content %}
+{% if current_user.is_authenticated %}
 <h1 class="text-center text-danger">HOA DON NHAP</h1>
 
 <div>
@@ -26,4 +27,7 @@
         {% endfor %}
     </table>
 </div>
+{% else %}
+<h1 class="text-center text-danger">Trang Quan ly kho</h1>
+{% endif %}
 {% endblock %}

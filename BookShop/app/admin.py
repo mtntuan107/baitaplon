@@ -25,7 +25,7 @@ class StatsView(BaseView):
         return self.render('admin/stats.html', stats=utils.book_stats(kw=kw, from_date=from_date, to_date=to_date))
 
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QTV)
+        return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QL)
 
 
 class StatsMonthView(BaseView):
@@ -33,7 +33,7 @@ class StatsMonthView(BaseView):
     def index(self):
         type = request.args.get('type')
         year = request.args.get('year', datetime.now().year)
-        return self.render('admin/statsmonth.html', stats=utils.month_type_stats(year=year,type=type))
+        return self.render('admin/statsmonth.html', stats=utils.month_type_stats(year=year, type=type))
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QL)
@@ -42,16 +42,19 @@ class AuthenticatedModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QL)
 
-class QLAuthenticatedModelView(ModelView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QL)
+# class QLAuthenticatedModelView(ModelView):
+#     def is_accessible(self):
+#         return current_user.is_authenticated and current_user.role.__eq__(VaiTro.QL)
+
+
 
 
 class SachView(AuthenticatedModelView):
-    column_list = ('id', 'name', 'price', 'image', 'miniid', 'sach_info','quanti' , 'nxb_id')
+    column_list = ('id', 'name', 'price', 'quanti', 'nxb_id')
     can_export = True
     column_filters = ['price', 'name']
     can_view_details = True
+    column_searchable_list = ['name']
 
 
 class LogoutView(BaseView):
@@ -64,9 +67,10 @@ class LogoutView(BaseView):
         return current_user.is_authenticated
 
 
-admin.add_view(QLAuthenticatedModelView(Sach, db.session))
-admin.add_view(QLAuthenticatedModelView(TheLoai, db.session))
-admin.add_view(QLAuthenticatedModelView(QuiDinh, db.session))
+admin.add_view(SachView(Sach, db.session))
+admin.add_view(AuthenticatedModelView(TheLoai, db.session))
+admin.add_view(AuthenticatedModelView(QuiDinh, db.session))
+admin.add_view(AuthenticatedModelView(NhaXuatBan, db.session))
 admin.add_view(StatsView(name='Stats'))
 admin.add_view(StatsMonthView(name='Stats Month'))
 admin.add_view(LogoutView(name='Logout'))
