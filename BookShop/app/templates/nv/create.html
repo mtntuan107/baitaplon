@@ -40,30 +40,28 @@
             <h5>Tong tien: {{ stats.total_amount}} VND</h5>
         </div>
 
-        <input type="button" value="Thanh Toan" class="btn btn-danger">
-
-        <input class="form-control" type="number" name="tienthu" id="tienthu" placeholder="Nhap tien">
-        <a href="javascript:void(0)" class="btn btn-danger mt-3" onclick="calcTien({{(stats.total_amount)}})">Nhan</a>
-        <div class="alert alert-info" id="hienthi"></div>
+<!--        <input class="form-control" type="number" name="tienthu" id="tienthu" placeholder="Nhap tien">-->
+<!--        <a href="javascript:void(0)" class="btn btn-danger mt-3" onclick="calcTien({{(stats.total_amount)}})">Nhan</a>-->
+<!--        <div class="alert alert-info" id="hienthi"></div>-->
 
 
-        <script>
-            function calcTien(x){
-                var tienHd = parseInt(x.value);
-                var tienthu = document.getElementById('tienthu');
-                var tien = parseInt(tienthu.value);
+<!--        <script>-->
+<!--            function calcTien(x){-->
+<!--                var tienHd = parseInt(x.value);-->
+<!--                var tienthu = document.getElementById('tienthu');-->
+<!--                var tien = parseInt(tienthu.value);-->
 
-                var tienhoan = tienHd - tien
-                kq = parseInt(tienhoan.value)
-                hienthi('Tien hoan: ' + tienhoan);
-            }
-            function hienthi(m) {
+<!--                var tienhoan = tienHd - tien-->
+<!--                kq = parseInt(tienhoan.value)-->
+<!--                hienthi('Tien hoan: ' + tienhoan);-->
+<!--            }-->
+<!--            function hienthi(m) {-->
 
-                var kq = document.getElementById('hienthi');
+<!--                var kq = document.getElementById('hienthi');-->
 
-                kq.innerHTML = m;
-            }
-        </script>
+<!--                kq.innerHTML = m;-->
+<!--            }-->
+<!--        </script>-->
         <input type="button" value="Thanh Toan" class="btn btn-danger" onclick="pay_nv()">
         {% else %}
         <p>No book</p>
